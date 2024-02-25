@@ -1,15 +1,18 @@
 import {
   Body,
   Controller,
-  Get,
+  Logger,
   Post,
   UploadedFile,
   UseInterceptors,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AppService } from './app.service';
+import { AuthDto } from './dto/auth.dto';
 import { FileService } from './file/file.service';
-
+@UsePipes(new ValidationPipe())
 @Controller()
 export class AppController {
   constructor(
@@ -17,9 +20,11 @@ export class AppController {
     private readonly fileService: FileService,
   ) {}
 
-  @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  @Post('auth')
+  async getHello(@Body() dto: AuthDto): Promise<boolean> {
+    // If comed to this place it is valid
+    Logger.log({ dto });
+    return true;
   }
 
   @Post('avatar')

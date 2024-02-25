@@ -1,20 +1,34 @@
+.input_wrapper {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	align-items: flex-start;
+}
+
+.form {
+	display: flex;
+}
+
 .wrapper {
 	display: flex;
-	justify-content: space-around;
-	align-items: center;
+	justify-content: center;
 }
 .users {
 	flex: 0 1;
+	padding-left: 5%;
 }
 
 .main_messages{
+	display: flex;
+	flex-direction: column;
 	flex: 1 1;
+	padding: 10px;
 }
 
 .messages {
 	display: flex;
 	flex-direction: column;
-	height: 70vh;
+	height: 50vh;
 }
 
 .input {
@@ -26,9 +40,9 @@
 .btn {
 	height: 40px;
 	width: 60px;
-	margin-bottom: 20px;
+	margin-left: 10px;
 }
 
 .history {
-	margin-bottom: 5%;
+	margin-right: 10px;
 }

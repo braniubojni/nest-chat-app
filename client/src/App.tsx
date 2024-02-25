@@ -11,25 +11,28 @@ export interface Message {
 }
 const SERVER_URL = process.env.REACT_APP_SERVER_URL;
 const userName = prompt("Please enter username");
-const notFound = 'https://media.istockphoto.com/id/1409329028/vector/no-picture-available-placeholder-thumbnail-icon-illustration-design.jpg?s=1024x1024&w=is&k=20&c=Bs1RdueQnaAcO888WBIQsC6NvA7aVTzeRVzSd8sJfUg='
 
 function App() {
-  const [avatar, setAvatar] = useState(notFound);
+  const [avatar, setAvatar] = useState(`${SERVER_URL}/avatars/${userName}.jpg`);
+  const [isValidUsr, setIsValidUsr] = useState<boolean>(!!userName);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    // Validate userName
     if (userName) {
       (async () => {
-        const url = `${SERVER_URL}/avatars/${userName}`
-        const hasAvatar = await checkImg(url);
-        if (hasAvatar) {
-          setAvatar(url);
-        }
-      })()
+        await fetch(`${SERVER_URL}/auth`, {
+          method: 'POST',
+          body: JSON.stringify({ userName })
+        })
+        .then(res => setIsValidUsr(res.ok))
+        .catch(() => setIsValidUsr(false))
+      })();
     }
-  }, []);
+  }, [isValidUsr])
 
-  if (!userName) {
+
+  if (!userName || isValidUsr) {
     return <h1>username is invalid</h1>
   }
   const handleAvatarClick = () => {
@@ -48,7 +51,6 @@ function App() {
     formData.append('userName', userName);
 
     try {
-      console.log(1);
       const response = await fetch(`${SERVER_URL}/avatar`, {
         method: 'POST',
         body: formData,
@@ -68,7 +70,7 @@ function App() {
       console.error('Error uploading avatar:', error);
     } finally {
       console.log('Finaly');
-      setAvatar(`${SERVER_URL}/avatar/${userName}`)
+      setAvatar(`${SERVER_URL}/avatars/${userName}.jpg`)
     }
   };
 

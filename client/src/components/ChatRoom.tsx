@@ -57,7 +57,7 @@ export const ChatRoom: React.FC<{ userName: string }> = ({ userName }) => {
 		if (isReady) {
 			emitEvent('getInfo');
 		}
-	}, [isReady])
+	}, [emitEvent, isReady])
 
 	return (
 		<div>
@@ -78,8 +78,10 @@ export const ChatRoom: React.FC<{ userName: string }> = ({ userName }) => {
 							</div>
 						)) : <div>No messages yet</div>}
 					</div>
-					{history?.length !== messages?.length && <button className={cls.history} onClick={handleHistory}>Show history</button>}
-					<ChatInput onSendMessage={handleSendMessage} />
+					<div className={cls.input_wrapper}>
+						{history?.length !== messages?.length && <button className={cls.history} onClick={handleHistory}>Show history</button>}
+						<ChatInput onSendMessage={handleSendMessage} />
+					</div>
 				</div>
 			</div>
 		</div>

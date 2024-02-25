@@ -15,7 +15,7 @@ export const ChatInput: React.FC<Props> = ({ onSendMessage }) => {
 	};
 
 	return (
-		<form onSubmit={handleSubmit}>
+		<form className={cls.form} onSubmit={handleSubmit}>
 			<input
 				className={cls.input}
 				type="text"

@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useCallback, useEffect } from 'react';
 import socketInstance from '../clients/socket/socketInstance';
 
@@ -10,14 +11,14 @@ interface IUseSocketProps {
   roomName: string;
   socketEvents: SocketEvent[];
   isReady?: boolean;
-  userName: string
+  userName: string;
 }
 
 const useSocket = ({
   roomName,
   socketEvents = [],
   isReady = true,
-  userName
+  userName,
 }: IUseSocketProps) => {
   const socketEventHandler = (handler: Function) => (data: any) => {
     handler(data);
@@ -31,10 +32,14 @@ const useSocket = ({
     const handleSocketEvents = () => {
       if (isReady && roomName) {
         socketInstance.on('connect', () => {
-          console.log('connected');
+          // console.log('connected');
         });
 
         socketInstance.emit('joinChat', userName);
+
+        socketInstance.on('error', (err) => {
+          console.log({ err });
+        });
 
         // Add socket event listeners
         socketEvents.forEach(({ event, handler }) => {

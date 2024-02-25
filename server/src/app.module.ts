@@ -5,6 +5,7 @@ import { AppService } from './app.service';
 import { AppController } from './app.controller';
 import { join } from 'path';
 import { FileService } from './file/file.service';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   providers: [ChatGateway, AppService, FileService],
@@ -12,6 +13,7 @@ import { FileService } from './file/file.service';
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, 'static'),
     }),
+    ConfigModule.forRoot(),
   ],
   controllers: [AppController],
 })
