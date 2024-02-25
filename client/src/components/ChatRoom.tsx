@@ -30,7 +30,7 @@ export const ChatRoom: React.FC<{ userName: string }> = ({ userName }) => {
 			},
 		}, {
 			event: 'info',
-			handler: (data: any) => {
+			handler: (data: [User[], Message[]]) => {
 				const [users, history] = data;
 				setAllUsers(users);
 				setHistory(history);
@@ -39,7 +39,7 @@ export const ChatRoom: React.FC<{ userName: string }> = ({ userName }) => {
 	});
 
 	const handleSendMessage = (text: string) => {
-		const message: Message = { username: userName, text, timestamp: new Date() }; // Replace 'YourUsername' with dynamic username
+		const message: Message = { username: userName, text, timestamp: new Date() };
 		emitEvent('message', message)
 	};
 
@@ -72,11 +72,13 @@ export const ChatRoom: React.FC<{ userName: string }> = ({ userName }) => {
 				</div>
 				<div className={cls.main_messages}>
 					<div className={cls.messages}>
-						{messages.length ? messages.map((msg) => (
-							<div className={cls.message} key={new Date(msg.timestamp).toString()}>
-								<strong>{msg.username}</strong>: {msg.text} <em>{new Date(msg.timestamp).toLocaleTimeString()}</em>
-							</div>
-						)) : <div>No messages yet</div>}
+						{messages.length ? messages
+							.sort((a, b) => new Date(a.timestamp).valueOf() - new Date(b.timestamp).valueOf())
+							.map((msg) => (
+								<div className={cls.message} key={new Date(msg.timestamp).toString()}>
+									<strong>{msg.username}</strong>: {msg.text} <em>{new Date(msg.timestamp).toLocaleTimeString()}</em>
+								</div>
+							)) : <div>No messages yet</div>}
 					</div>
 					<div className={cls.input_wrapper}>
 						{history?.length !== messages?.length && <button className={cls.history} onClick={handleHistory}>Show history</button>}

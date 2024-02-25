@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useCallback, useEffect } from 'react';
 import socketInstance from '../clients/socket/socketInstance';
+import { Message } from '../App';
 
 type SocketEvent = {
   event: string;
@@ -11,7 +12,7 @@ interface IUseSocketProps {
   roomName: string;
   socketEvents: SocketEvent[];
   isReady?: boolean;
-  userName: string;
+  userName?: string;
 }
 
 const useSocket = ({
@@ -24,9 +25,11 @@ const useSocket = ({
     handler(data);
   };
 
-  const emitEvent = useCallback((event: string, data?: any) => {
+  const emitEvent = useCallback((event: string, data?: unknown) => {
     socketInstance.emit(event, data);
   }, []);
+
+  const receivedMsg = new Map();
 
   useEffect(() => {
     const handleSocketEvents = () => {
@@ -37,18 +40,27 @@ const useSocket = ({
 
         socketInstance.emit('joinChat', userName);
 
-        socketInstance.on('error', (err) => {
-          console.log({ err });
+        socketInstance.on(
+          'ack',
+          (ack: { status: string; message: Message }) => {
+            const key = `${ack.message.username}-${ack.message.timestamp}`;
+            if (ack.status !== 'success' || !receivedMsg.has(key)) {
+              socketInstance.emit('messageErr', ack.message);
+            }
+          }
+        );
+
+        socketInstance.on('message', (msg: Message) => {
+          const key = `${msg.username}-${msg.timestamp}`;
+          receivedMsg.set(key, msg);
         });
 
-        // Add socket event listeners
         socketEvents.forEach(({ event, handler }) => {
           const fullEventName = event;
           socketInstance.on(fullEventName, socketEventHandler(handler));
         });
 
         return () => {
-          // Remove socket event listeners
           socketEvents.forEach(({ event, handler }) => {
             const fullEventName = event;
             socketInstance.off(fullEventName, socketEventHandler(handler));

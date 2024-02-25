@@ -1,7 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import './App.css';
 import { ChatRoom } from './components/ChatRoom';
-import { checkImg } from './helpers';
 import cls from './style.module.css';
 
 export interface Message {
@@ -14,27 +13,9 @@ const userName = prompt("Please enter username");
 
 function App() {
   const [avatar, setAvatar] = useState(`${SERVER_URL}/avatars/${userName}.jpg`);
-  const [isValidUsr, setIsValidUsr] = useState<boolean>(!!userName);
+  const [loading, setLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
-    // Validate userName
-    if (userName) {
-      (async () => {
-        await fetch(`${SERVER_URL}/auth`, {
-          method: 'POST',
-          body: JSON.stringify({ userName })
-        })
-        .then(res => setIsValidUsr(res.ok))
-        .catch(() => setIsValidUsr(false))
-      })();
-    }
-  }, [isValidUsr])
-
-
-  if (!userName || isValidUsr) {
-    return <h1>username is invalid</h1>
-  }
   const handleAvatarClick = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
@@ -44,13 +25,13 @@ function App() {
   const saveAvatar = async (event: any) => {
     const file = event.target?.files;
 
-    if (!file?.length) return;
+    if (!file?.length || !userName) return;
 
     const formData = new FormData();
     formData.append('file', file[0]);
     formData.append('userName', userName);
-
     try {
+      setLoading(true);
       const response = await fetch(`${SERVER_URL}/avatar`, {
         method: 'POST',
         body: formData,
@@ -69,23 +50,28 @@ function App() {
     } catch (error) {
       console.error('Error uploading avatar:', error);
     } finally {
-      console.log('Finaly');
+      setLoading(false);
       setAvatar(`${SERVER_URL}/avatars/${userName}.jpg`)
     }
   };
 
   return (
     <div className="App">
-      <header className="App-header">
-        <h1>Erik's Chat - {userName} </h1>
-        <div className={cls.avatar_wrapper}>
-          <img onClick={handleAvatarClick} className={cls.avatar} src={avatar} alt="avatar" />
-          <input ref={fileInputRef} className={cls.input} type='file' name="file" accept="image/jpeg" onChange={saveAvatar} style={{ display: 'none' }} />
-        </div>
-      </header>
-      <div>
-        <ChatRoom userName={userName} />
-      </div>
+      {!userName
+        ? <h1>Loading ...</h1>
+        : <>
+          <header className="App-header">
+            <h1>Erik's Chat - {userName} </h1>
+            <div className={cls.avatar_wrapper}>
+              {!loading ? <img onClick={handleAvatarClick} className={cls.avatar} src={avatar} alt="avatar" /> : <span>...</span>}
+              <input ref={fileInputRef} className={cls.input} type='file' name="file" accept="image/jpeg" onChange={saveAvatar} style={{ display: 'none' }} />
+            </div>
+          </header>
+          <div>
+            <ChatRoom userName={userName} />
+          </div>
+        </>
+      }
     </div>
   );
 }

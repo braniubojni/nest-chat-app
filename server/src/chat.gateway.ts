@@ -15,9 +15,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer() server: Server;
   private users: Record<string, string> = {};
   private messages: Message[] = [];
+  private errorLogs: Message[] = [];
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  handleConnection(client: Socket, ...args: any[]) {
+  handleConnection(client: Socket) {
     // console.log(`Client connected: ${client.id}\n`);
   }
 
@@ -41,6 +42,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
   ) {
     this.server.emit('message', message);
+
+    // Send an acknowledgment
+    client.emit('ack', { status: 'success', message });
+
     this.messages.push(message);
   }
 
@@ -51,5 +56,14 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
       usr,
     }));
     this.server.emit('info', [users, this.messages]);
+  }
+
+  @SubscribeMessage('messageErr')
+  handleErrMessage(
+    @MessageBody() message: Message,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    @ConnectedSocket() client: Socket,
+  ) {
+    this.errorLogs.push(message);
   }
 }
