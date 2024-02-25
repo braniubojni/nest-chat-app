@@ -27,7 +27,7 @@ Project Structure
 - Install dependencies:
     - `npm install`
 - Create a .env file in the server directory and add the following:
-    - `REACT_APP_SERVER_URL=http://localhost:6006`
+    - `REACT_APP_SERVER_URL=http://localhost:5005`
 
 ## Running the Application
 1. #### Start the server
