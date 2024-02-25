@@ -10,9 +10,8 @@ export class FileService {
     userName: string,
   ): Promise<string> {
     try {
-      // const ext = extname(file.originalname);
-      // const fileName = userName + ext;
-      const fileName = userName;
+      const ext = extname(file.originalname);
+      const fileName = userName + ext;
       const filePath = resolve(__dirname, '..', 'static', 'avatars');
       if (!existsSync(filePath)) {
         mkdirSync(filePath, { recursive: true });
